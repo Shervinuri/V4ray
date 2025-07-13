@@ -2,7 +2,7 @@ name: Update VPN Configs
 
 on:
   schedule:
-    - cron: '0 * * * *'  # هر یک ساعت
+    - cron: '*/10 * * * *'  # هر ۱۰ دقیقه
   workflow_dispatch:
 
 jobs:
@@ -26,6 +26,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git pull --rebase origin main
           git add configs/CollecSHEN.txt
           git commit -m "Auto update configs" || echo "No changes"
-          git push
+          git push origin main
