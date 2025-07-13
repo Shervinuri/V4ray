@@ -13,17 +13,6 @@ https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protoc
 https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/ssr.txt
 https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/mahsa_sub.json
 https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v3.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v4.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v5.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v6.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v7.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v8.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v9.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v10.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v11.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v12.json
-https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update_v13.json
 https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/filtered_iran.txt
 https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt
 https://github.com/Epodonios/v2ray-configs/raw/main/All_Configs_base64_Sub.txt
