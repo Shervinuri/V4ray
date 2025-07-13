@@ -26,7 +26,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git pull --rebase origin main
           git add configs/CollecSHEN.txt
-          git commit -m "Auto update configs" || echo "No changes"
-          git push origin main
+          git commit -m "Auto update configs" || echo "No changes to commit"
+          git pull --rebase --autostash origin main || true
+          git push origin main || true
