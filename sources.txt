@@ -16,3 +16,4 @@ https://raw.githubusercontent.com/Alvin9999/new-pac/master/v2ray_vless.txt
 https://raw.githubusercontent.com/Leon406/SubCrawler/main/sub/share/vless.txt
 https://raw.githubusercontent.com/AzadNetCH/Clash/main/Vless.txt
 https://raw.githubusercontent.com/ts-sf/fly/main/vless
+https://9527521.xyz/config/lxB7k130djsSomFT
