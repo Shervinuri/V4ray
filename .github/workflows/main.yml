@@ -26,6 +26,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add configs/output.txt
+          git add configs/CollecSHEN.txt
           git commit -m "Auto update configs" || echo "No changes"
           git push
