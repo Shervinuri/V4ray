@@ -3,7 +3,7 @@ import requests
 import os
 
 SOURCE_FILE = "sources.txt"
-OUTPUT_FILE = "configs/output.txt"
+OUTPUT_FILE = "configs/CollecSHEN.txt"
 REMARK = "☬SHΞN™"
 
 def extract_configs_from_text(text):
