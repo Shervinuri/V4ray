@@ -1,16 +1,7 @@
 https://v2.alicivil.workers.dev
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub1.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub2.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub3.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub4.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub5.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub6.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub7.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub8.txt
+https://v2.alicivil.workers.dev/?list=100&count=20000&unique=false
 https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/vmess.txt
 https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/vless.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/ss.txt
-https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/ssr.txt
 https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/mahsa_sub.json
 https://raw.githubusercontent.com/GFW-knocker/MahsaNG/main/remote_config_update.json
 https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/filtered_iran.txt
