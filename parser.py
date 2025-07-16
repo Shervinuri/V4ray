@@ -53,7 +53,7 @@ def get_country_flag(ip):
 
 def get_network_type(vless_link):
     if "type=grpc" in vless_link:
-        return "grpc"l
+        return "grpc"
     elif "type=ws" in vless_link:
         return "ws"
     else:
@@ -97,20 +97,24 @@ def fetch_source(url):
 def main():
     os.makedirs("configs", exist_ok=True)
     urls = []
-    with open(SOURCE_FILE, 'r') as f:
-        urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    try:
+        with open(SOURCE_FILE, 'r') as f:
+            urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    except FileNotFoundError:
+        print(f"Error: {SOURCE_FILE} not found. Please create it and add source URLs.")
+        return
 
     all_configs = []
     for url in urls:
         print(f"🔗 {url}")
         text = fetch_source(url)
-        all_configs += extract_vless(text)
+        all_configs.extend(extract_vless(text))
 
     all_configs = list(dict.fromkeys(all_configs))
     print(f"\n🧪 Testing {len(all_configs)} VLESS configs...\n")
     refined = refine_configs(all_configs)
 
-    with open(OUTPUT_FILE, 'w') as f:
+    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(
             "# درود بر یاران جان\n"
             "# شروین ۱۰ دقیقه دیگه مجدد این لیست رو آپدیت میکنه\n"
