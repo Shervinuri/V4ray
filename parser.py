@@ -1,77 +1,125 @@
-import base64, requests, os, re
+import base64, requests, os, re, socket
+from urllib.parse import urlparse
 
 SOURCE_FILE = "sources.txt"
 OUTPUT_FILE = "configs/CollecSHEN.txt"
 REMARK = "☬SHΞN™"
 
-def is_base64(s):
-    try:
-        return base64.b64encode(base64.b64decode(s)).decode() in s
-    except:
-        return False
+COUNTRY_EMOJIS = {
+    "ir": "🇮🇷", "de": "🇩🇪", "fr": "🇫🇷", "us": "🇺🇸", "nl": "🇳🇱", "ru": "🇷🇺", "cn": "🇨🇳",
+    "in": "🇮🇳", "sg": "🇸🇬", "tr": "🇹🇷", "jp": "🇯🇵", "ca": "🇨🇦", "gb": "🇬🇧"
+}
 
-def decode_base64_block(text):
+def decode_base64(text):
+    padded = text + "=" * ((4 - len(text) % 4) % 4)
     try:
-        padded = text + "=" * ((4 - len(text) % 4) % 4)
-        return base64.b64decode(padded).decode(errors='ignore')
+        return base64.b64decode(padded).decode(errors="ignore")
     except:
         return ""
 
-def extract_configs(text):
+def extract_vless(text):
     configs = set()
-    # مرحله ۱: اگر کل فایل base64 بود
-    decoded_whole = decode_base64_block(text.strip())
-    if decoded_whole and any(proto in decoded_whole for proto in ['vmess://', 'vless://', 'ss://']):
+    decoded_whole = decode_base64(text.strip())
+    if 'vless://' in decoded_whole:
         text += "\n" + decoded_whole
 
-    # مرحله ۲: خط‌به‌خط بررسی
     for line in text.strip().splitlines():
         line = line.strip()
-        if not line or len(line) < 10:
+        if not line or len(line) < 10: continue
+
+        if line.startswith('vless://'):
+            configs.add(line.split('#')[0])
             continue
 
-        # اگر خودش base64 بود، دیکد کن
-        decoded_line = decode_base64_block(line)
-        if any(proto in decoded_line for proto in ['vmess://', 'vless://', 'ss://']):
-            text += "\n" + decoded_line
-            continue
-
-        # اگه خودش کانفیگ بود
-        if re.match(r"^(vmess|vless|ss)://", line):
-            config = line.split('#')[0] + '#' + REMARK
-            configs.add(config)
+        decoded_line = decode_base64(line)
+        if 'vless://' in decoded_line:
+            configs.update([l.split('#')[0] for l in decoded_line.splitlines() if l.startswith('vless://')])
 
     return list(configs)
 
-def fetch_url(url):
+def get_ip(host):
     try:
-        res = requests.get(url, timeout=10)
-        if res.status_code == 200:
-            return res.text
+        return socket.gethostbyname(host)
     except:
-        pass
-    return ""
+        return None
+
+def get_country_flag(ip):
+    try:
+        r = requests.get(f"https://ipapi.co/{ip}/country/", timeout=3)
+        code = r.text.strip().lower()
+        return COUNTRY_EMOJIS.get(code, "🏳️")
+    except:
+        return "🏳️"
+
+def get_network_type(vless_link):
+    if "type=grpc" in vless_link:
+        return "grpc"l
+    elif "type=ws" in vless_link:
+        return "ws"
+    else:
+        return "tcp"
+
+def is_alive(host):
+    try:
+        ip = get_ip(host)
+        if not ip: return False
+        socket.create_connection((ip, 443), timeout=3)
+        return True
+    except:
+        return False
+
+def generate_remark(host, link):
+    ip = get_ip(host)
+    flag = get_country_flag(ip) if ip else "🏳️"
+    conn = get_network_type(link)
+    return f"{REMARK} {flag} {conn}"
+
+def refine_configs(configs):
+    refined = []
+    for c in configs:
+        try:
+            parsed = urlparse(c)
+            host = parsed.hostname
+            if not host or not is_alive(host): continue
+            remark = generate_remark(host, c)
+            refined.append(c + "#" + remark)
+        except:
+            continue
+    return refined
+
+def fetch_source(url):
+    try:
+        r = requests.get(url, timeout=10)
+        return r.text if r.status_code == 200 else ""
+    except:
+        return ""
 
 def main():
     os.makedirs("configs", exist_ok=True)
-    final_configs = []
-
+    urls = []
     with open(SOURCE_FILE, 'r') as f:
         urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
+    all_configs = []
     for url in urls:
-        print(f"🔗 Fetching from: {url}")
-        raw = fetch_url(url)
-        extracted = extract_configs(raw)
-        print(f"✅ Found {len(extracted)} configs")
-        final_configs.extend(extracted)
+        print(f"🔗 {url}")
+        text = fetch_source(url)
+        all_configs += extract_vless(text)
 
-    final_configs = list(dict.fromkeys(final_configs))
+    all_configs = list(dict.fromkeys(all_configs))
+    print(f"\n🧪 Testing {len(all_configs)} VLESS configs...\n")
+    refined = refine_configs(all_configs)
+
     with open(OUTPUT_FILE, 'w') as f:
-        for c in final_configs:
-            f.write(c + '\n')
+        f.write(
+            "# درود بر یاران جان\n"
+            "# شروین ۱۰ دقیقه دیگه مجدد این لیست رو آپدیت میکنه\n"
+            "# پس اگر کانفیگ خوبی پیدا کردی منتقل کن یجا دیگه چون ممکنه که این بره یکی بهتر بیاد جاش 😁\n\n"
+        )
+        for c in refined:
+            f.write(c + "\n")
 
-    print(f"\n🔥 Saved {len(final_configs)} configs to {OUTPUT_FILE}")
+    print(f"\n✅ Saved {len(refined)} refined configs to {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
