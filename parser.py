@@ -5,11 +5,6 @@ SOURCE_FILE = "sources.txt"
 OUTPUT_FILE = "configs/CollecSHEN.txt"
 REMARK = "☬SHΞN™"
 
-COUNTRY_EMOJIS = {
-    "ir": "🇮🇷", "de": "🇩🇪", "fr": "🇫🇷", "us": "🇺🇸", "nl": "🇳🇱", "ru": "🇷🇺", "cn": "🇨🇳",
-    "in": "🇮🇳", "sg": "🇸🇬", "tr": "🇹🇷", "jp": "🇯🇵", "ca": "🇨🇦", "gb": "🇬🇧"
-}
-
 def decode_base64(text):
     padded = text + "=" * ((4 - len(text) % 4) % 4)
     try:
@@ -17,7 +12,7 @@ def decode_base64(text):
     except:
         return ""
 
-def extract_vless(text):
+def extract_vless(text, enforce_port_filter=False):
     configs = set()
     decoded_whole = decode_base64(text.strip())
     if 'vless://' in decoded_whole:
@@ -27,14 +22,16 @@ def extract_vless(text):
         line = line.strip()
         if not line or len(line) < 10: continue
 
-        if line.startswith('vless://'):
-            configs.add(line.split('#')[0])
-            continue
+        if 'vless://' not in line:
+            line = decode_base64(line)
 
-        decoded_line = decode_base64(line)
-        if 'vless://' in decoded_line:
-            configs.update([l.split('#')[0] for l in decoded_line.splitlines() if l.startswith('vless://')])
-
+        for l in line.strip().splitlines():
+            if l.startswith('vless://'):
+                parsed = urlparse(l)
+                port = parsed.port
+                if enforce_port_filter and port not in [443, 8443, 8880]:
+                    continue
+                configs.add(l.split('#')[0])
     return list(configs)
 
 def get_ip(host):
@@ -43,18 +40,29 @@ def get_ip(host):
     except:
         return None
 
+def country_code_to_emoji(code):
+    if not code or len(code) != 2:
+        return "🏳️"
+    return chr(ord(code[0].upper()) + 127397) + chr(ord(code[1].upper()) + 127397)
+
 def get_country_flag(ip):
     try:
         r = requests.get(f"https://ipapi.co/{ip}/country/", timeout=3)
         code = r.text.strip().lower()
-        return COUNTRY_EMOJIS.get(code, "🏳️")
+        if code and len(code) == 2:
+            return country_code_to_emoji(code)
+        # fallback to ipinfo
+        r2 = requests.get(f"https://ipinfo.io/{ip}/country", timeout=3)
+        code2 = r2.text.strip().lower()
+        return country_code_to_emoji(code2)
     except:
         return "🏳️"
 
 def get_network_type(vless_link):
-    if "type=grpc" in vless_link:
+    vless_link = vless_link.lower()
+    if "type=grpc" in vless_link or "mode=gun" in vless_link:
         return "grpc"
-    elif "type=ws" in vless_link:
+    elif "type=ws" in vless_link or "path=" in vless_link:
         return "ws"
     else:
         return "tcp"
@@ -82,10 +90,12 @@ def refine_configs(configs):
             host = parsed.hostname
             if not host or not is_alive(host): continue
             remark = generate_remark(host, c)
-            refined.append(c + "#" + remark)
+            refined.append((get_network_type(c), c + "#" + remark))
         except:
             continue
-    return refined
+    # Sort: grpc/tcp before ws
+    refined.sort(key=lambda x: {"grpc": 0, "tcp": 1, "ws": 2}.get(x[0], 3))
+    return [item[1] for item in refined]
 
 def fetch_source(url):
     try:
@@ -107,8 +117,12 @@ def main():
     all_configs = []
     for url in urls:
         print(f"🔗 {url}")
-        text = fetch_source(url)
-        all_configs.extend(extract_vless(text))
+        raw = fetch_source(url)
+        temp_configs = extract_vless(raw)
+        if len(temp_configs) > 1000:
+            print(f"⚠️  Large source ({len(temp_configs)} configs). Applying port filter...")
+            temp_configs = extract_vless(raw, enforce_port_filter=True)
+        all_configs.extend(temp_configs)
 
     all_configs = list(dict.fromkeys(all_configs))
     print(f"\n🧪 Testing {len(all_configs)} VLESS configs...\n")
